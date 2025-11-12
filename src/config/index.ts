@@ -13,6 +13,7 @@ export const Accounts = {
 		credit: "Stripe Account",
 	},
 };
+export const AccountQueryDepth = 3
 
 interface transactionDescriptionParameters {
 	name: string | null;

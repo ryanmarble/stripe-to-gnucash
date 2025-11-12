@@ -51,7 +51,6 @@ export default async function paymentIntentSucceededHandler(
 	const accountFeesDebit = matchedAccounts.find(
 		({ name }) => name === Accounts.fees.debit
 	);
-
 	if (!(accountChargeDebit && accountChargeCredit && accountFeesDebit))
 		throw new Error(
 			"Unable to find the debit and/or credit accounts specified in the configuration for the PaymentIntentSucceeded handler. Edit the Accounts object exported by config/index.ts or add the requested accounts to the database."

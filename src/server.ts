@@ -1,8 +1,10 @@
 import dotenv from "dotenv";
 import getStripeClient from "./services/stripe.js";
+import getNocoClient from "./services/noco.js";
 
 dotenv.config();
 getStripeClient(); // Initialize Stripe client
+getNocoClient();
 
 import express, { Application, Request, Response } from "express";
 import webhookRoutes from "./routes/webhookRoutes.js";
@@ -21,7 +23,7 @@ const startServer = async () => {
 		app.listen(PORT, () => {
 			console.log(`Server is running at http://localhost:${PORT}`);
 			console.log(
-				`API Webhook Endpoint: POST http://localhost:${PORT}${API_BASE}/stripe`
+				`API Webhook Endpoint: POST http://localhost:${PORT}${API_BASE}`
 			);
 		});
 	} catch (error) {

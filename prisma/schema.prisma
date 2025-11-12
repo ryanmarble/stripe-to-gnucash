@@ -22,6 +22,8 @@ model Accounts {
   hidden         Int?
   placeholder    Int?
 
+  parent_account Accounts? @relation("ParentChildAccounts", fields: [parent_guid], references: [guid], onDelete: NoAction, onUpdate: NoAction)
+  child_accounts Accounts[] @relation("ParentChildAccounts")
   splits Splits[]
 
   @@map("accounts")
