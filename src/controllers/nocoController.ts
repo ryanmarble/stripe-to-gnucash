@@ -19,7 +19,7 @@ interface NocoTransactionRaw {
   [key: string]: any
 }
 
-interface Account {
+export interface Account {
   fullString: string
   accountName: string
   parentAccount: Account
