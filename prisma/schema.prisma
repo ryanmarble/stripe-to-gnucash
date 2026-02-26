@@ -1,30 +1,28 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider   = "prisma-client"
+  output     = "../src/generated/prisma"
 }
 
 datasource db {
   provider     = "mysql"
-  url          = env("DATABASE_URL")
   relationMode = "prisma"
 }
 
 model Accounts {
-  guid           String  @id @db.VarChar(32)
-  name           String  @db.VarChar(2048)
-  account_type   String  @db.VarChar(2048)
-  commodity_guid String? @db.VarChar(32)
+  guid           String     @id @db.VarChar(32)
+  name           String     @db.VarChar(2048)
+  account_type   String     @db.VarChar(2048)
+  commodity_guid String?    @db.VarChar(32)
   commodity_scu  Int
   non_std_scu    Int
-  parent_guid    String? @db.VarChar(32)
-  code           String? @db.VarChar(2048)
-  description    String? @db.VarChar(2048)
+  parent_guid    String?    @db.VarChar(32)
+  code           String?    @db.VarChar(2048)
+  description    String?    @db.VarChar(2048)
   hidden         Int?
   placeholder    Int?
-
-  parent_account Accounts? @relation("ParentChildAccounts", fields: [parent_guid], references: [guid], onDelete: NoAction, onUpdate: NoAction)
+  parent_account Accounts?  @relation("ParentChildAccounts", fields: [parent_guid], references: [guid], onDelete: NoAction, onUpdate: NoAction)
   child_accounts Accounts[] @relation("ParentChildAccounts")
-  splits Splits[]
+  splits         Splits[]
 
   @@map("accounts")
 }
@@ -286,21 +284,20 @@ model Slots {
 }
 
 model Splits {
-  guid            String    @id @db.VarChar(32)
-  tx_guid         String    @db.VarChar(32)
-  account_guid    String    @db.VarChar(32)
-  memo            String    @db.VarChar(2048)
-  action          String    @db.VarChar(2048)
-  reconcile_state String    @db.VarChar(1)
-  reconcile_date  DateTime? @default(dbgenerated("'1970-01-01 00:00:00'")) @db.DateTime(0)
+  guid            String       @id @db.VarChar(32)
+  tx_guid         String       @db.VarChar(32)
+  account_guid    String       @db.VarChar(32)
+  memo            String       @db.VarChar(2048)
+  action          String       @db.VarChar(2048)
+  reconcile_state String       @db.VarChar(1)
+  reconcile_date  DateTime?    @default(dbgenerated("'1970-01-01 00:00:00'")) @db.DateTime(0)
   value_num       BigInt
   value_denom     BigInt
   quantity_num    BigInt
   quantity_denom  BigInt
-  lot_guid        String?   @db.VarChar(32)
-
-  transactions Transactions @relation(fields: [tx_guid], references: [guid])
-  account      Accounts     @relation(fields: [account_guid], references: [guid])
+  lot_guid        String?      @db.VarChar(32)
+  transactions    Transactions @relation(fields: [tx_guid], references: [guid])
+  account         Accounts     @relation(fields: [account_guid], references: [guid])
 
   @@index([account_guid], map: "splits_account_guid_index")
   @@index([tx_guid], map: "splits_tx_guid_index")
@@ -325,8 +322,7 @@ model Transactions {
   post_date     DateTime? @default(dbgenerated("'1970-01-01 00:00:00'")) @db.DateTime(0)
   enter_date    DateTime? @default(dbgenerated("'1970-01-01 00:00:00'")) @db.DateTime(0)
   description   String?   @db.VarChar(2048)
-
-  splits Splits[]
+  splits        Splits[]
 
   @@index([post_date], map: "tx_post_date_index")
   @@map("transactions")
