@@ -9,11 +9,10 @@ export const Accounts = {
 		credit: "Stripe Account",
 	},
 	payouts: {
-		debit: "Checking Account 0508",
+		debit: "Checking Account 1603",
 		credit: "Stripe Account",
 	},
 };
-export const AccountQueryDepth = 3
 
 interface transactionDescriptionParameters {
 	name: string | null;
