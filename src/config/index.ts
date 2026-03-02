@@ -1,10 +1,10 @@
-export const DefaultCurrencyGuid = "4a99222352d94e43afc12a472f3d6cb4";
+export const DefaultCurrencyGuid = "0925f49bd405404d93efccb387ab4755";
 export const unitDenominator = 100;
 
 export const defaultEarnings = {
   Salary: undefined,
   "1099-NEC": undefined,
-  Reimbursement: "@Liabilities:Accounts Payable:Employee Reimbursments",
+  Reimbursement: "@Liabilities:Accounts Payable:Employee Reimbursements",
   other: undefined,
 };
 
@@ -270,6 +270,18 @@ export const Accounts = {
     },
     "331 M&G Other Contractor Work": {
       prefix: "Expenses:Management & General Expenses:Contractors",
+      earnings: {
+        ...defaultEarnings,
+        "1099-NEC": "Other Contractors",
+      },
+      expense: {
+        ...defaultExpenses,
+      },
+      withholding: defaultWithholdings,
+    },
+    "123 NFC Other Contractor Work": {
+      prefix:
+        "Expenses:Program Expenses:Navigating Fetal Concerns Program Expenses:Contractors",
       earnings: {
         ...defaultEarnings,
         "1099-NEC": "Other Contractors",

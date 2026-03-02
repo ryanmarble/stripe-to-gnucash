@@ -45,9 +45,14 @@ const payrollWithholdingSplitShape = payrollSplitShape.extend({
   earningAmount: z.any().transform(() => undefined),
   expenseName: z.any().transform(() => undefined),
   expenseAmount: z.any().transform(() => undefined),
-  withholdingName: z.enum(["Fed Income Tax", "AZ Income Tax", "Social Security", "Medicare"]),
+  withholdingName: z.enum([
+    "Fed Income Tax",
+    "AZ Income Tax",
+    "Social Security",
+    "Medicare",
+  ]),
   withholdingAmount: z.coerce.number(),
-})
+});
 
 export type PayrollSplitShape = z.infer<typeof payrollSplitShape>;
 const guidSchema = {
@@ -104,7 +109,9 @@ const getGuidFromFullAccountName = (
   fullAccountName: string,
   accounts: AccountWithFullName[],
 ): string => {
-  const parsedAccountName = fullAccountName.startsWith("@") ? fullAccountName.slice(1) : fullAccountName
+  const parsedAccountName = fullAccountName.startsWith("@")
+    ? fullAccountName.slice(1)
+    : fullAccountName;
   const match = accounts.find(
     (account) => account.fullAccountName === parsedAccountName,
   );
@@ -211,9 +218,10 @@ export const savePayrollTransaction = async (splits: PayrollSplitShape[]) => {
     console.log("⏳ Creating tax payment transaction...");
     const createTaxPaymentSplitsInput = splits.reduce(
       (accumulator, split) => {
-        const companyTaxExpenseSplit = payrollCompanyTaxExpenseSplitShape.safeParse(split);
+        const companyTaxExpenseSplit =
+          payrollCompanyTaxExpenseSplitShape.safeParse(split);
         if (companyTaxExpenseSplit.success) {
-          const { data } = companyTaxExpenseSplit
+          const { data } = companyTaxExpenseSplit;
           const value = Math.round(data.expenseAmount * unitDenominator);
           accumulator.data.push({
             guid: RandomString.generate(guidSchema),
@@ -231,9 +239,9 @@ export const savePayrollTransaction = async (splits: PayrollSplitShape[]) => {
           });
           accumulator.balance = accumulator.balance - value;
         }
-        const withholdingSplit = payrollWithholdingSplitShape.safeParse(split)
+        const withholdingSplit = payrollWithholdingSplitShape.safeParse(split);
         if (withholdingSplit.success) {
-          const { data } = withholdingSplit
+          const { data } = withholdingSplit;
           const value = Math.round(data.withholdingAmount * unitDenominator);
           accumulator.data.push({
             guid: RandomString.generate(guidSchema),
@@ -241,7 +249,7 @@ export const savePayrollTransaction = async (splits: PayrollSplitShape[]) => {
               defaultWithholdings[data.withholdingName],
               accounts,
             ),
-            memo: `${split.expenseName} withholding liability payment for ${data.fullName}`,
+            memo: `${split.withholdingName} withholding liability payment for ${data.fullName}`,
             value_num: value,
             value_denom: unitDenominator,
             reconcile_state: "c",
