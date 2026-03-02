@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
         "target": "ES2020", /* Specify ECMAScript target version */
-        "module": "ESNext",
-        "moduleResolution": "bundler",
+        "module": "NodeNext",
+        "moduleResolution": "nodenext",
         "baseUrl": "./src",
         "rootDir": "./src", /* Specify the root directory of source files */
         "outDir": "./dist", /* Specify an output folder for all emitted files */
