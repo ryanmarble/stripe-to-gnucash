@@ -7,7 +7,7 @@ export function getStripeClient(): Stripe {
 		return _stripeClient;
 	}
 
-	const apiKey = process.env.STRIPE_API_KEY_LIVE as string;
+	const apiKey = (process.env.TEST_MODE) ? process.env.STRIPE_API_KEY_TEST! : process.env.STRIPE_API_KEY_LIVE!
 
 	_stripeClient = new Stripe(apiKey, {
 		typescript: true,

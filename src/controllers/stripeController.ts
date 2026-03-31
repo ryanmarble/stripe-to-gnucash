@@ -4,11 +4,12 @@ import { Request, Response } from "express";
 import Stripe from "stripe";
 import getStripeClient from "../services/stripe.js";
 import payoutPaidHandler from "../services/events/payoutPaid.js";
-import paymentIntentSucceededHandler from "../services/events/paymentIntentSucceeded.js";
+import checkoutSessionCompletedHandler from "services/events/checkoutSessionCompleted.js";
+import invoicePaymentSucceededHandler from "services/events/invoicePaymentSucceeded.js";
 
 export const handleStripeWebhook = async (req: Request, res: Response) => {
 	const stripe = getStripeClient();
-	const webhookSecret = process.env.STRIPE_WH_SECRET_LIVE as string;
+	const webhookSecret = process.env.TEST_MODE ? process.env.STRIPE_WH_SECRET_TEST! : process.env.STRIPE_WH_SECRET_LIVE!
 	const signature = req.headers["stripe-signature"];
 	const rawBody = req.body;
 	let event: Stripe.Event;
@@ -24,11 +25,17 @@ export const handleStripeWebhook = async (req: Request, res: Response) => {
 	}
 	try {
 		switch (event.type) {
+			// Monitors balance transfers
 			case "payout.paid":
 				payoutPaidHandler(event);
 				break;
-			case "payment_intent.succeeded":
-				paymentIntentSucceededHandler(event);
+			// Monitors one-time and new recurring gifts
+			case "checkout.session.completed":
+				checkoutSessionCompletedHandler(event)
+				break;
+			// Monitors subsequent recurring gifts
+			case "invoice.payment_succeeded":
+				invoicePaymentSucceededHandler(event)
 				break;
 			default:
 				console.warn(`Unhandled event ${event.type}`);
