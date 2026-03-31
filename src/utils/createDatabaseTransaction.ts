@@ -1,37 +1,30 @@
-import Stripe from "stripe";
-import prisma from "../../services/database.js";
-import getStripeClient from "../../services/stripe.js";
+import prisma from "../services/database.js";
+import getStripeClient from "../services/stripe.js";
 import * as RandomString from "randomstring";
 import {
 	DefaultCurrencyGuid,
 	transactionDescription,
 	Accounts,
-} from "../../config/index.js";
+} from "../config/index.js";
 
-/**
- * @deprecated This function is deprecated. Use invoicePaymentSucceededHandler() instead.
- */
-export default async function paymentIntentSucceededHandler(
-	event: Stripe.PaymentIntentSucceededEvent
+export default async function createDatabaseTransaction(
+	paymentIntentId: string
 ): Promise<void> {
 	const stripe = getStripeClient();
-	const { latest_charge } = event.data.object;
-	if (typeof latest_charge !== "string")
-		throw new Error("Stripe payload not in expected format.");
-	const {
-		id: chargeId,
+	const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId, {
+		expand: ["latest_charge.balance_transaction"],
+	});
+    if (!paymentIntent.latest_charge || typeof paymentIntent.latest_charge === 'string') throw new Error('Stripe Charge object "latest_charge" was not expanded')
+    const { latest_charge: {
+        id: chargeId,
 		balance_transaction: balanceTransaction,
 		billing_details: billingDetails,
 		created,
-		amount,
-	} = await stripe.charges.retrieve(latest_charge, {
-		expand: ["balance_transaction"],
-	});
+		amount
+    }} = paymentIntent
 	if (!balanceTransaction || typeof balanceTransaction === "string")
-		throw new Error(
-			"Stripe PaymentIntent does not contain a BalanceTransaction object"
-		);
-	const feeAmount = (balanceTransaction as Stripe.BalanceTransaction).fee;
+		throw new Error('Stripe BalanceTransaction object "balance_transaction" was not expanded');
+	const feeAmount = balanceTransaction.fee;
 	const matchedAccounts = await prisma.accounts.findMany({
 		where: {
 			OR: [
@@ -67,7 +60,7 @@ export default async function paymentIntentSucceededHandler(
 		console.warn(`Duplicate transaction detected, skipping ${chargeId}`);
 		return;
 	}
-	const transaction = await prisma.transactions.create({
+	await prisma.transactions.create({
 		data: {
 			guid: RandomString.generate({
 				length: 32,
@@ -133,4 +126,5 @@ export default async function paymentIntentSucceededHandler(
 			},
 		},
 	});
+    console.log(`Database transaction successfully created for Payment Intent [${paymentIntentId}]`)
 }
